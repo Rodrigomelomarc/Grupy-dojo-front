@@ -18,8 +18,11 @@ export default class Clock extends Component {
       codingBreakTime: this.props.codingBreakTime,
       queueLength: this.props.queueLength,
       queueCounter: 0,
-      pauseFlag: false
+      pauseFlag: true,
+      nonStarted: true,
+      endend: false
     }
+    this.initialState = {...this.state};
   }
 
   decrementCodingTurnTime = () => {
@@ -37,19 +40,14 @@ export default class Clock extends Component {
   }
 
   resetCodingBreakTime = () => {
-    this.setState({codingTurnTime: this.props.codingTurnTime});
+    this.setState({codingBreakTime: this.props.codingBreakTime});
   }
 
   incrementQueueTurn = () => {
     let queueTurn = this.state.queueTurn
     this.setState({queueTurn: queueTurn + 1});
   }
-
-  pausePlayClock = () => {
-    let pauseFlag = this.state.pauseFlag;
-    this.setState({pauseFlag: !pauseFlag});
-  }
-
+  
   incrementQueueCounter = () => {
     let queueCounter = this.state.queueCounter;
     this.setState({queueCounter: queueCounter + 1});
@@ -69,11 +67,11 @@ export default class Clock extends Component {
     this.resetQueueCounter();
     this.incrementQueueTurn();
   }
-
+  
   checkCodingTurn = () => {    
     let codingTurnTime = this.state.codingTurnTime;
     let codingBreakTime = this.state.codingBreakTime;
-
+    
     if (codingTurnTime > 0) {
       this.decrementCodingTurnTime();
       return this.decrementer();
@@ -87,12 +85,15 @@ export default class Clock extends Component {
       return this.decrementer();
     }
   }
-
+  
   checkQueueTurn = () => {
     let queueLength = this.state.queueLength;
     let queueCounter = this.state.queueCounter;
-  
-    if (queueCounter == queueLength) {
+    
+    
+    if (queueCounter === queueLength) {
+      // stops previous decrementer since it will call a new
+      clearTimeout(this.state.timeoutPromise);
       this.newQueueTurn();
       return this.decrementer();
     }
@@ -100,26 +101,71 @@ export default class Clock extends Component {
 
   checkEnd = () => {
     let queueTurn = this.state.queueTurn;
-  
-    if (queueTurn == totalSessions) {
-      return this.decrementer();
+    let totalSessions = this.state.totalSessions;
+    
+    
+    if (queueTurn === totalSessions) {
+      // stops previous decrementer since it will call a new
+      clearTimeout(this.state.timeoutPromise);
+      this.setState({endend: true});
     }
   }
+  
+  handleStartTimer = (e) => {
+    e.preventDefault();
+    this.decrementer();
+  }
+  
+  handlePausePlayClock = async (e) => {
+    e.preventDefault();
+    let pauseFlag = this.state.pauseFlag;
+    await this.setState(
+      {pauseFlag: !pauseFlag, nonStarted: false}
+    );
+    if (pauseFlag) ; this.decrementer();
+  }
 
-  workflow = () => {
-    this.checkCodingTurn();
-    this.checkQueueTurn();
-    this.checkEnd();
+  handleReset = async (e) => {
+    e.preventDefault();
+    await clearTimeout(this.state.timeoutPromise);
+    await this.setState({...this.initialState});
+    return;
+  }
+
+  workflow = async () => {
+    await this.checkCodingTurn();
+    await this.checkQueueTurn();
+    await this.checkEnd();
   }
 
   decrementer = () => {
-    setTimeout(() => {
-      this.workflow();
-    }, 1000)
+    let pauseFlag = this.state.pauseFlag;
+    let timeoutPromise;
+
+    if (pauseFlag && this.state.timeoutPromise) {
+      clearTimeout(this.state.timeoutPromise);
+      return ;
+    } else {
+      timeoutPromise = setTimeout(() => {
+        this.workflow();
+      }, 1000);
+      this.setState(
+        {timeoutPromise: timeoutPromise}
+      );
+    }
   }
-  
 
   render() {
-    return <div />;
+    return (
+      <div>
+        {!this.state.nonStarted ? <button onClick={this.handleReset}>"Reiniciar"</button> : ""}
+        <h1>{`CodingTurnTime: ${this.state.codingTurnTime}`}</h1>
+        <h1>{`CodingBreakTime: ${this.state.codingBreakTime}`}</h1>
+        <h1>{`queueCounter: ${this.state.queueCounter}`}</h1>
+        <button onClick={this.handlePausePlayClock}>{
+          this.state.pauseFlag ? "Play" : "Pause"
+        }</button>
+      </div>
+    );
   }
 }
