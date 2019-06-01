@@ -188,12 +188,22 @@ export default class Clock extends Component {
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card">
+            <div class="card" style={
+              this.state.endend ?
+              {backgroundColor: 'red', color:'white'} :
+              {}
+            }>
               <h3 class="card-header text-center">Rodada</h3>
               <h3 class="card-body card-text text-center">{`${this.state.queueTurn}`}</h3>
             </div>
           </div>
         </div>
+
+        {
+          this.state.endend ?
+          <div class="row d-flex justify-content-center" style={{color: "pink"}}><h3>Partida finalizada!</h3></div> :
+          ""         
+        }
 
         <div class="row d-flex justify-content-center">
           <button class="btn btn-primary mr-2" onClick={this.handlePausePlayClock}>{
