@@ -33,27 +33,37 @@ class App extends React.Component {
     this.setState({'formDone': true})
   }
 
+  renderForm = () => {
+    return <Form 
+            codingSeconds={this.state.codingSeconds}
+            breakSeconds={this.state.breakSeconds}
+            numberOfTurns={this.state.numberOfTurns}
+            handleCodingSecondsChange={this.handleCodingSecondsChange}
+            handleBreakSecondsChange={this.handleBreakSecondsChange}
+            handleNumberOfTurns={this.handleNumberOfTurns}
+            getFormData={this.getFormData}
+          />
+  }
+
+  renderClock = () => {
+    return <Clock 
+            totalSessions={parseInt(this.state.numberOfTurns)}  
+            codingTurnTime={parseInt(this.state.codingSeconds)}
+            codingBreakTime={parseInt(this.state.breakSeconds)}
+            queueLength={5}
+          />;
+  }
+
 
 
   render() {
     return (
-      <div style={{height: '100%'}}>
-        <Form 
-          codingSeconds={this.state.codingSeconds}
-          breakSeconds={this.state.breakSeconds}
-          numberOfTurns={this.state.numberOfTurns}
-          handleCodingSecondsChange={this.handleCodingSecondsChange}
-          handleBreakSecondsChange={this.handleBreakSecondsChange}
-          handleNumberOfTurns={this.handleNumberOfTurns}
-          getFormData={this.getFormData}
-        />
-        <Clock 
-          totalSessions={4}  
-          codingTurnTime={4}
-          codingBreakTime={2}
-          queueLength={5}
-          />;
-          
+      <div style={{height: '100%'}}>        
+        {
+          this.state.formDone ?
+          this.renderClock() :
+          this.renderForm()
+        }
       </div>
     )
   }
