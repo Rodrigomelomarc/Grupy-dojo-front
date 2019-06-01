@@ -155,16 +155,54 @@ export default class Clock extends Component {
     }
   }
 
+  toMmSs = (toConvertNumber) => {
+    let minutes = Math.floor(toConvertNumber/60).toString();
+    let seconds = (toConvertNumber%60).toString();
+    if (minutes.length === 1) {
+      minutes = '0' + minutes;
+    }
+    if (seconds.length === 1) {
+      seconds = '0' + seconds
+    }
+    return `${minutes}:${seconds}`
+  }
+
   render() {
     return (
-      <div>
-        {!this.state.nonStarted ? <button onClick={this.handleReset}>"Reiniciar"</button> : ""}
-        <h1>{`CodingTurnTime: ${this.state.codingTurnTime}`}</h1>
-        <h1>{`CodingBreakTime: ${this.state.codingBreakTime}`}</h1>
-        <h1>{`queueCounter: ${this.state.queueCounter}`}</h1>
-        <button onClick={this.handlePausePlayClock}>{
-          this.state.pauseFlag ? "Play" : "Pause"
-        }</button>
+      <div class="container my-2">
+        <div class="row my-2">
+          <div class="col-md-4">
+            <div class="card">
+              <h3 class="card-header text-center">Tempo pra codar</h3>
+              <h3 class="card-body card-text text-center">{this.toMmSs(this.state.codingTurnTime)}</h3>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <h3 class="card-header text-center">Descanso</h3>
+              <h3 class="card-body card-text text-center">{this.toMmSs(this.state.codingBreakTime)}</h3>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <h3 class="card-header text-center">Rodada</h3>
+              <h3 class="card-body card-text text-center">{`${this.state.queueTurn}`}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="row d-flex justify-content-center">
+          <button class="btn btn-primary mr-2" onClick={this.handlePausePlayClock}>{
+            this.state.pauseFlag ? <i class="fas fa-play"></i> : <i class="fas fa-pause"></i>
+          }</button>
+          {
+            !this.state.nonStarted ?
+            <button class="btn btn-warning ml-2" onClick={this.handleReset}>
+              <i class="fas fa-undo"></i> Reiniciar
+            </button> :
+            ""
+          }
+        </div>
       </div>
     );
   }
