@@ -20,7 +20,8 @@ export default class Clock extends Component {
       queueCounter: 0,
       pauseFlag: true,
       nonStarted: true,
-      endend: false
+      endend: false,
+      highlightItem: 'codingTurnTime'
     }
     this.initialState = {...this.state};
   }
@@ -74,13 +75,16 @@ export default class Clock extends Component {
     
     if (codingTurnTime > 0) {
       this.decrementCodingTurnTime();
+      this.setState({highlightItem: 'codingTurnTime'})
       return this.decrementer();
     }
     else if (codingBreakTime > 0) {
       this.decrementCodingBreakTime();
+      this.setState({highlightItem: 'codingBreakTime'})
       return this.decrementer();
     }
     else {
+      this.setState({highlightItem: 'codingTurnTime'})
       this.newCodingTurn();
       return this.decrementer();
     }
@@ -172,13 +176,13 @@ export default class Clock extends Component {
       <div class="container my-2">
         <div class="row my-2">
           <div class="col-md-4">
-            <div class="card">
+            <div class="card" style={this.state.highlightItem === 'codingTurnTime' ? {backgroundColor: 'orange'} : {}}>
               <h3 class="card-header text-center">Tempo pra codar</h3>
               <h3 class="card-body card-text text-center">{this.toMmSs(this.state.codingTurnTime)}</h3>
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card">
+            <div class="card" style={this.state.highlightItem === 'codingBreakTime' ? {backgroundColor: 'orange'} : {}}>
               <h3 class="card-header text-center">Descanso</h3>
               <h3 class="card-body card-text text-center">{this.toMmSs(this.state.codingBreakTime)}</h3>
             </div>
